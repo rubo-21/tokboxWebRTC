@@ -1,3 +1,5 @@
+import { forwardRef } from "react";
+
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -6,7 +8,7 @@ import Paper from "@mui/material/Paper";
 
 import PropTypes from "prop-types";
 
-const VideoCall = ({ onLeaveCall }) => {
+const VideoCall = forwardRef(function VideoCall({ onLeaveCall }, ref) {
   return (
     <Box sx={{ my: 4 }}>
       <Paper sx={{ py: 4 }}>
@@ -22,6 +24,7 @@ const VideoCall = ({ onLeaveCall }) => {
           <Box
             id="subscriber"
             sx={{ width: 500, height: 300, m: 2, border: "1px solid #ccc" }}
+            ref={ref}
           ></Box>
         </Box>
         <Divider sx={{ mb: 2 }} />
@@ -31,7 +34,7 @@ const VideoCall = ({ onLeaveCall }) => {
       </Paper>
     </Box>
   );
-};
+});
 
 VideoCall.propTypes = {
   onLeaveCall: PropTypes.func.isRequired,

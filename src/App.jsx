@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useState, useLayoutEffect } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useLayoutEffect,
+  useRef,
+} from "react";
 import "./App.css";
 
 import Home from "./components/Home";
@@ -20,6 +26,7 @@ function App() {
   const [session, setSession] = useState(null);
   const [subscriber, setSubscriber] = useState(null);
   const [publisher, setPublisher] = useState(null);
+  const subscriberRef = useRef(null);
 
   const getDeviceType = useCallback(() => {
     if (isDesktop) {
@@ -106,13 +113,25 @@ function App() {
   }, [camera, microphone]);
 
   const disconnectSession = useCallback(() => {
+    if (!session) {
+      return;
+    }
+    session.off("streamCreated");
+    session.off("sessionDisconnected");
     session.disconnect();
     if (subscriber) {
       session.unsubscribe(subscriber.id);
+      if (subscriberRef.current) {
+        // clear subscriber element
+        subscriberRef.current.innerHTML = "";
+      }
+      // clear publisher only when there is a subscriber
+      if (publisher) {
+        publisher.destroy();
+        session.unpublish(publisher);
+      }
     }
-    if (publisher) {
-      session.unpublish(publisher);
-    }
+    setStartInit(false);
     console.log("Session disconnected");
   }, [publisher, session, subscriber]);
 
@@ -149,7 +168,9 @@ function App() {
           microphoneDevices={microphoneDevices}
         />
       )}
-      {showVideoPage && <VideoCall onLeaveCall={handleLeaveCallClick} />}
+      {showVideoPage && (
+        <VideoCall onLeaveCall={handleLeaveCallClick} ref={subscriberRef} />
+      )}
     </Container>
   );
 }
